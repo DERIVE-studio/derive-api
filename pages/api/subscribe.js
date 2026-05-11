@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         fields: {
           Email: email,
-          "Subscribed at": new Date().toISOString(),
+          "Subscribed at": new Date().toISOString().split("T")[0],
           Status: "Active",
         },
       }),
