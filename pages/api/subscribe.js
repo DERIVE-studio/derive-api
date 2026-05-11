@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   if (!email) return res.status(400).json({ error: "Email required" })
 
   try {
-    await fetch(`https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${process.env.AIRTABLE_TABLE_ID}`, {
+    const airtableRes = await fetch(`https://api.airtable.com/v0/${process.env.AIRTABLE_BASE_ID}/${process.env.AIRTABLE_TABLE_ID}`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${process.env.AIRTABLE_TOKEN}`,
@@ -29,6 +29,9 @@ export default async function handler(req, res) {
       }),
     })
 
+    const airtableData = await airtableRes.json()
+    console.log("Airtable response:", JSON.stringify(airtableData))
+
     await resend.emails.send({
       from: "DÉRIVE <hello@derive.studio>",
       to: email,
@@ -42,8 +45,9 @@ export default async function handler(req, res) {
       `,
     })
 
-    return res.status(200).json({ success: true })
+    return res.status(200).json({ success: true, airtable: airtableData })
   } catch (err) {
+    console.log("Error:", err.message)
     return res.status(500).json({ error: err.message })
   }
 }
