@@ -10,7 +10,7 @@ export default async function handler(req, res) {
   if (req.method === "OPTIONS") return res.status(200).end()
   if (req.method !== "POST") return res.status(405).end()
 
-  const { email } = req.body
+  const { email, name, surname, city, country } = req.body
   if (!email) return res.status(400).json({ error: "Email required" })
 
   try {
@@ -23,6 +23,10 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         fields: {
           Email: email,
+          Name: name || "",
+          Surname: surname || "",
+          City: city || "",
+          Country: country || "",
           "Subscribed at": new Date().toISOString().split("T")[0],
           Status: "Active",
         },
@@ -30,7 +34,6 @@ export default async function handler(req, res) {
     })
 
     const airtableData = await airtableRes.json()
-    console.log("Airtable response:", JSON.stringify(airtableData))
 
     await resend.emails.send({
       from: "DÉRIVE <hello@derive.studio>",
@@ -47,7 +50,6 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ success: true, airtable: airtableData })
   } catch (err) {
-    console.log("Error:", err.message)
     return res.status(500).json({ error: err.message })
   }
 }
